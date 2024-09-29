@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
-
 const app = express();
 const port = 5000;
 
@@ -13,9 +12,39 @@ const pool = new Pool({
     password: '123asd',
     port: 5432,
 });
-
 app.use(cors());
 app.use(bodyParser.json());
+
+const createTables = async () => {
+    const client = await pool.connect();
+    try {
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS sorted_arrays (
+                id SERIAL PRIMARY KEY
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS sorted_elements (
+                id SERIAL PRIMARY KEY,
+                array_id INTEGER REFERENCES sorted_arrays(id),
+                element INTEGER
+            );
+        `);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        client.release();
+    }
+};
+
+createTables().then(() => {
+    app.listen(port, () => {
+        console.log(`Сервер запущен: http://localhost:${port}`);
+    });
+}).catch(err => {
+    console.error('Error starting server:', err);
+});
+
 
 app.post('/save-sorted', async (req, res) => {
     const numbers = req.body.numbers;
@@ -47,10 +76,6 @@ app.get('/get-sorted/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
     }
-});
-
-app.listen(port, () => {
-    console.log(`Сервер запущен: http://localhost:${port}`);
 });
 
 // C:\Program Files\PostgreSQL\17\bin
