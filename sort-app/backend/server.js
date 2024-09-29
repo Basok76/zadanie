@@ -42,7 +42,7 @@ createTables().then(() => {
         console.log(`Сервер запущен: http://localhost:${port}`);
     });
 }).catch(err => {
-    console.error('Error starting server:', err);
+    console.error(err);
 });
 
 

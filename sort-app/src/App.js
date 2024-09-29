@@ -1,7 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
-import { Client } from 'pg';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
